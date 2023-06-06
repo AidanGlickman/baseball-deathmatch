@@ -1,8 +1,14 @@
 library(shiny)
+source("ui_lib.R")
 
 # Define UI
+batterIDs <- read.csv("../data/batter_id.csv")
+batter_choices <- setNames(batterIDs$id, batterIDs$name)
+
+pitcherIDs <- read.csv("../data/pitcher_id.csv")
+pitcher_choices <- setNames(pitcherIDs$id, pitcherIDs$name)
+
 ui <- fluidPage(
-  
   # Custom CSS style
   tags$head(
     tags$link(rel = "stylesheet", href = "https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap"),
@@ -66,76 +72,7 @@ ui <- fluidPage(
   #         tags$img(src = "image1.jpg")
   #),
   
-  
-  tags$div( 
-    style = "background-color: #000000; padding: 10px; padding-left: 20px",
-  
-    # Select Batters
-    fluidRow(
-      column(width = 5,
-           tags$h3("Team Vipers", style = "text-align: left; color: #caccce; font-family: 'Metal Mania', sans-serif;"),
-           div(style = "color: #7A1414; background-color: #000000; font-family: 'Luminari', fantasy;", 
-               selectInput("dropdown1", "Select Batter", 
-                       choices = c("Option 1", "Option 2", "Option 3"), 
-                       selected = NULL)
-              )
-           ),
-
-      column(width = 5,
-             tags$h3("Team Skulls", style = "text-align: left; color: #caccce; font-family: 'Metal Mania', sans-serif;"),
-             div(style = "color: #7A1414; background-color: #000000; font-family: 'Luminari', fantasy;", 
-                 selectInput("dropdown1", "Select Batter", 
-                             choices = c("Option 1", "Option 2", "Option 3"), 
-                             selected = NULL)
-             )
-        )
-      ),
-    
-    # Select Pitchers
-    fluidRow(
-      column(width = 5,
-             div(style = "color: #7A1414; background-color: #000000; font-family: 'Luminari', fantasy;", 
-                 selectInput("dropdown1", "Select Pitcher", 
-                             choices = c("Option 1", "Option 2", "Option 3"), 
-                             selected = NULL)
-             )
-      ),
-      column(width = 5,
-             div(style = "color: #7A1414; background-color: #000000; font-family: 'Luminari', fantasy;", 
-                 selectInput("dropdown1", "Select Pitcher", 
-                             choices = c("Option 1", "Option 2", "Option 3"), 
-                             selected = NULL)
-             )
-      )
-    ), 
-    
-    # Action button
-    fluidRow(
-      column(width = 12,
-             div(style = "padding-top: 20px; text-align: left;",
-                 actionButton("startButton", "Commence Death Match", 
-                              style = "background-color: #000000; color: #caccce; font-family: 'Metal Mania', sans-serif;"
-                 )
-             )
-      )
-    )
-    
-  ),
-  
-  fluidRow(
-    column(width = 4,
-           style = "overflow-y: scroll; max-height: 300px;",
-           verbatimTextOutput("verboseOutput")
-    ),
-    
-    column(width = 4,
-           plotOutput("plot1")
-    ),
-    
-    column(width = 4,
-           plotOutput("plot2")
-    )
-  ),
+  htmlOutput("mainbody"),
   
   br(),
   # Spotify embedding
@@ -170,24 +107,37 @@ server <- function(input, output, session) {
   plot1_data <- reactiveVal(NULL)
   plot2_data <- reactiveVal(NULL)
   
+    output$mainbody <- renderUI(team_select_screen)
+  
+  updateSelectizeInput(session, 'pitcher_one', choices = pitcher_choices, server = TRUE)
+  updateSelectizeInput(session, 'pitcher_two', choices = pitcher_choices, server = TRUE)
+  updateSelectizeInput(session, 'batter_one', choices = batter_choices, server = TRUE)
+  updateSelectizeInput(session, 'batter_two', choices = batter_choices, server = TRUE)
+  
+  output$pitcher_headshot_one <- renderText({get_player_headshot(input$pitcher_one)})
+  output$batter_headshot_one <- renderText({get_player_headshot(input$batter_one)})
+  output$pitcher_headshot_two <- renderText({get_player_headshot(input$pitcher_two)})
+  output$batter_headshot_two <- renderText({get_player_headshot(input$batter_two)})
+  
   observeEvent(input$startButton, {
+    output$mainbody <- renderUI(game_screen)
     # Perform desired operations on the backend here
     # Code to be executed when the action button is clicked
     
     # Render the verbose output
-    output$verboseOutput <- renderText({
-      verbose_output()
-    })
-    
-    # Render plot 1
-    output$plot1 <- renderPlot({
-      plot(plot1_data(), 1:length(plot1_data()), type = "l", main = "Plot 1")
-    })
-    
-    # Render plot 2
-    output$plot2 <- renderPlot({
-      plot(plot2_data(), 1:length(plot2_data()), type = "l", main = "Plot 2")
-    })    
+    # output$verboseOutput <- renderText({
+    #   verbose_output()
+    # })
+    # 
+    # # Render plot 1
+    # output$plot1 <- renderPlot({
+    #   plot(plot1_data(), 1:length(plot1_data()), type = "l", main = "Plot 1")
+    # })
+    # 
+    # # Render plot 2
+    # output$plot2 <- renderPlot({
+    #   plot(plot2_data(), 1:length(plot2_data()), type = "l", main = "Plot 2")
+    # })    
     
     
   })

@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+data/statcast.csv
+data/sc*
