@@ -1,5 +1,6 @@
 library(shiny)
 source("ui_lib.R")
+source("../simulation/library.R")
 
 # Define UI
 batterIDs <- read.csv("../data/batter_id.csv")
@@ -67,25 +68,10 @@ ui <- fluidPage(
            tags$img(src = "Baseball-skull-design-on-transparent-background-PNG.png"),
   ),
   
-  # Image placement
-  #tags$div(class = "image-container",
-  #         tags$img(src = "image1.jpg")
-  #),
-  
   htmlOutput("mainbody"),
   
   br(),
-  # Spotify embedding
-  tags$div(class = "spotify-embed",
-           mainPanel(
-           tags$iframe(src = "https://open.spotify.com/embed/playlist/4fR5U0vK3YxOMIRGYpotpB?utm_source=generator",
-                       width = "500",
-                       height = "100%",
-                       frameborder = "0",
-                       allowtransparency = "true",
-                       allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
-                       loading = "lazy"))
-  ),
+  spotify_embed,
 
   br(),
   br(),
@@ -107,12 +93,23 @@ server <- function(input, output, session) {
   plot1_data <- reactiveVal(NULL)
   plot2_data <- reactiveVal(NULL)
   
+  pitcher_one_sc <- reactiveVal(NULL)
+  pitcher_two_sc <- reactiveVal(NULL)
+  batter_one_sc <- reactiveVal(NULL)
+  batter_two_sc <- reactiveVal(NULL)
+  
+  boxScore <- reactiveVal(NULL)
+  score <- reactiveVal(NULL)
+  count <- reactiveVal(NULL)
+  inning <- reactiveVal(NULL)
+  bases <- reactiveVal(NULL)
+  
     output$mainbody <- renderUI(team_select_screen)
   
-  updateSelectizeInput(session, 'pitcher_one', choices = pitcher_choices, server = TRUE)
-  updateSelectizeInput(session, 'pitcher_two', choices = pitcher_choices, server = TRUE)
-  updateSelectizeInput(session, 'batter_one', choices = batter_choices, server = TRUE)
-  updateSelectizeInput(session, 'batter_two', choices = batter_choices, server = TRUE)
+  updateSelectizeInput(session, 'pitcher_one', choices = pitcher_choices, selected=660271, server = TRUE)
+  updateSelectizeInput(session, 'pitcher_two', choices = pitcher_choices, selected=434378, server = TRUE)
+  updateSelectizeInput(session, 'batter_one', choices = batter_choices, selected=660271, server = TRUE)
+  updateSelectizeInput(session, 'batter_two', choices = batter_choices, selected=592450, server = TRUE)
   
   output$pitcher_headshot_one <- renderText({get_player_headshot(input$pitcher_one)})
   output$batter_headshot_one <- renderText({get_player_headshot(input$batter_one)})
@@ -120,7 +117,26 @@ server <- function(input, output, session) {
   output$batter_headshot_two <- renderText({get_player_headshot(input$batter_two)})
   
   observeEvent(input$startButton, {
+    
     output$mainbody <- renderUI(game_screen)
+    output$pitcher_headshot_one <- renderText({get_player_headshot(input$pitcher_one)})
+    output$batter_headshot_one <- renderText({get_player_headshot(input$batter_one)})
+    output$pitcher_headshot_two <- renderText({get_player_headshot(input$pitcher_two)})
+    output$batter_headshot_two <- renderText({get_player_headshot(input$batter_two)})
+    
+    init_vals <- init_sim(input$pitcher_one, input$batter_one, input$pitcher_two, input$batter_two)
+    pitcher_one_sc <- init_vals[1]
+    batter_one_sc <- init_vals[2]
+    pitcher_two_sc <- init_vals[3]
+    batter_two_sc <- init_vals[4]
+    boxScore <- init_vals[5]
+    score <- init_vals[6]
+    count <- init_vals[7]
+    inning <- init_vals[8]
+    bases <- init_vals[9]
+    output$boxscoreout <- renderTable(boxScore)
+    output$scoreout <- renderTable(score)
+    output$countout <- renderTable(count)
     # Perform desired operations on the backend here
     # Code to be executed when the action button is clicked
     
