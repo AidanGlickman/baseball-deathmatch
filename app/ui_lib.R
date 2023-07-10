@@ -6,7 +6,7 @@ library(dplyr)
 
 
 get_player_headshot <- function(id){
-  url <- sprintf("https://img.mlbstatic.com/mlb-photos/image/upload/w_32,q_100/v1/people/%s/headshot/silo/current", id)
+  url <- sprintf("https://img.mlbstatic.com/mlb-photos/image/upload/w_64,q_100/v1/people/%s/headshot/silo/current", id)
   return(c('<img style="image-rendering: pixelated; height:128px;" src="',url,'">'))
 }
 

@@ -100,7 +100,7 @@ server <- function(input, output, session) {
   
   boxScore <- reactiveVal(NULL)
   score <- reactiveVal(NULL)
-  count <- reactiveVal(NULL)
+  mycount <- reactiveVal(NULL)
   inning <- reactiveVal(NULL)
   bases <- reactiveVal(NULL)
   
@@ -125,35 +125,36 @@ server <- function(input, output, session) {
     output$batter_headshot_two <- renderText({get_player_headshot(input$batter_two)})
     
     init_vals <- init_sim(input$pitcher_one, input$batter_one, input$pitcher_two, input$batter_two)
-    pitcher_one_sc <- init_vals[1]
+    pitcher_one_sc <- bind_rows(init_vals[1])
     batter_one_sc <- init_vals[2]
     pitcher_two_sc <- init_vals[3]
     batter_two_sc <- init_vals[4]
     boxScore <- init_vals[5]
     score <- init_vals[6]
-    count <- init_vals[7]
+    mycount <- init_vals[7]
     inning <- init_vals[8]
     bases <- init_vals[9]
     output$boxscoreout <- renderTable(boxScore)
     output$scoreout <- renderTable(score)
-    output$countout <- renderTable(count)
+    output$countout <- renderTable(mycount)
     # Perform desired operations on the backend here
     # Code to be executed when the action button is clicked
     
     # Render the verbose output
-    # output$verboseOutput <- renderText({
-    #   verbose_output()
-    # })
-    # 
-    # # Render plot 1
-    # output$plot1 <- renderPlot({
-    #   plot(plot1_data(), 1:length(plot1_data()), type = "l", main = "Plot 1")
-    # })
-    # 
-    # # Render plot 2
-    # output$plot2 <- renderPlot({
-    #   plot(plot2_data(), 1:length(plot2_data()), type = "l", main = "Plot 2")
-    # })    
+    output$verboseOutput <- renderPrint({
+      # pitcher_one_sc
+      choosePitch(pitcher_one_sc, score[[1]][[1]] > score[[1]][[3]], mycount, inning, bases)
+    })
+
+    # Render plot 1
+    output$plot1 <- renderPlot({
+      
+    })
+
+    # Render plot 2
+    output$plot2 <- renderPlot({
+      
+    })
     
     
   })
